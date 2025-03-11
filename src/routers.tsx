@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { RouteConfig } from "./types/router";
-import Home from "./home";
+import Home from "./pages/Home/Home";
+import Chart from "./pages/Chart/Chart";
 
 const routes: Array<RouteConfig> = [
   {
@@ -9,7 +10,7 @@ const routes: Array<RouteConfig> = [
     children: [
       {
         path: "/chart",
-        element: <div>Chart</div>,
+        element: <Chart />,
       },
       {
         path: "/w-hook",
