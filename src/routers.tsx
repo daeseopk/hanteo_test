@@ -1,11 +1,13 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-const mainRouter = createBrowserRouter([
+import { RouteConfig } from "./types/router";
+
+const routes: Array<RouteConfig> = [
   {
     path: "/chart",
     element: <div>Chart</div>,
   },
   {
-    path: "/WHook",
+    path: "/w-hook",
     element: <div>WHook</div>,
   },
   {
@@ -24,7 +26,10 @@ const mainRouter = createBrowserRouter([
     path: "/top-up-center",
     element: <div>top-up-center</div>,
   },
-]);
+];
+
+const mainRouter = createBrowserRouter(routes);
+
 export default function MainRouter() {
   return <RouterProvider router={mainRouter} />;
 }
