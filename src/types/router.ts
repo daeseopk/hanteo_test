@@ -9,6 +9,7 @@ export type RouteKey =
   | "top-up-center";
 
 export interface RouteConfig {
-  path: `/${RouteKey}`;
+  path: `/${RouteKey}` | "/";
   element: ReactNode;
+  children?: Array<RouteConfig>;
 }
