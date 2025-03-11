@@ -44,7 +44,7 @@ export default function Carousel<T>(props: Props<T>) {
     items,
     renderItem,
     autoScroll = true,
-    autoScrollInterval = 3000,
+    autoScrollInterval = 5000,
     dotsStyle = DEFAULT_DOTS_STYLE,
     gap = 10,
     onSwipe,
@@ -53,16 +53,79 @@ export default function Carousel<T>(props: Props<T>) {
   } = props;
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [nearestIndex, setNearestIndex] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [touchInfo, setTouchInfo] = useState<TouchInfo | null>(null);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   const itemsRef = useRef<Array<HTMLDivElement | null>>([]);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const autoScrollRef = useRef<NodeJS.Timeout | null>(null);
+
+  const currentNearestIndexRef = useRef<number | null>(null);
+  const singleSetWidthRef = useRef<number>(0);
 
   const displayItems = useMemo(() => {
     return [...items, ...items, ...items];
   }, [items]);
+
+  const scrollToIndex = useCallback(
+    (index: number, useAnimation: boolean = true) => {
+      if (!wrapperRef.current) return;
+
+      const itemWidth = itemsRef.current[0]?.offsetWidth || 0;
+      if (itemWidth === 0) return;
+
+      const totalWidth = itemWidth + gap;
+      const scrollPosition = index * totalWidth;
+
+      wrapperRef.current.scrollTo({
+        left: scrollPosition,
+        behavior: useAnimation ? "smooth" : "auto",
+      });
+    },
+    [gap]
+  );
+
+  // 경계 조건 확인 및 처리
+  const checkAndAdjustBoundary = useCallback(() => {
+    if (!wrapperRef.current || currentNearestIndexRef.current === null)
+      return false;
+
+    const itemWidth = itemsRef.current[0]?.offsetWidth || 0;
+    if (itemWidth === 0) return false;
+
+    const totalWidth = itemWidth + gap;
+    singleSetWidthRef.current = items.length * totalWidth;
+
+    let adjusted = false;
+    const currentIndex = currentNearestIndexRef.current;
+
+    // 오른쪽 경계 검사
+    if (currentIndex >= items.length * 2) {
+      // 중간 세트의 동일한 위치로 이동
+      const newIndex = currentIndex - items.length;
+      currentNearestIndexRef.current = newIndex;
+      setNearestIndex(newIndex);
+
+      // 스크롤 위치 즉시 조정 (애니메이션 없이)
+      scrollToIndex(newIndex, false);
+      adjusted = true;
+    }
+    // 왼쪽 경계 검사
+    else if (currentIndex < items.length) {
+      // 중간 세트의 동일한 위치로 이동
+      const newIndex = currentIndex + items.length;
+      currentNearestIndexRef.current = newIndex;
+      setNearestIndex(newIndex);
+
+      // 스크롤 위치 즉시 조정 (애니메이션 없이)
+      scrollToIndex(newIndex, false);
+      adjusted = true;
+    }
+
+    return adjusted;
+  }, [items.length, gap, scrollToIndex]);
 
   // 초기 스크롤 위치를 중간 세트로 설정
   useEffect(() => {
@@ -72,43 +135,71 @@ export default function Carousel<T>(props: Props<T>) {
     if (itemWidth === 0) return;
 
     const totalWidth = itemWidth + gap;
-    const singleSetWidth = items.length * totalWidth;
+    singleSetWidthRef.current = items.length * totalWidth;
 
-    // 중간 세트의 시작 부분으로 스크롤
-    wrapperRef.current.scrollLeft = singleSetWidth;
+    // 중간 세트의 첫 번째 아이템으로 설정
+    const initialIndex = items.length;
+    currentNearestIndexRef.current = initialIndex;
+    setNearestIndex(initialIndex);
+
+    // 스크롤 위치 즉시 조정 (애니메이션 없이)
+    scrollToIndex(initialIndex, false);
+
     setIsInitialized(true);
-  }, [items.length, gap, isInitialized]);
+  }, [items.length, gap, isInitialized, scrollToIndex]);
 
+  // 스크롤 이벤트 핸들러
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
 
     const handleScroll = () => {
-      const { scrollLeft } = wrapper;
-      const itemWidth = itemsRef.current[0]?.offsetWidth || 0;
-      const totalWidth = itemWidth + gap;
-      const singleSetWidth = items.length * totalWidth;
+      if (isDragging) return; // 드래그 중일 때는 무시
 
-      if (scrollLeft > singleSetWidth * 1.5) {
-        wrapper.scrollLeft -= singleSetWidth;
-      } else if (scrollLeft < singleSetWidth * 0.5) {
-        wrapper.scrollLeft += singleSetWidth;
+      const itemWidth = itemsRef.current[0]?.offsetWidth || 0;
+      if (itemWidth === 0) return;
+
+      const totalWidth = itemWidth + gap;
+
+      // 현재 스크롤 위치에서 가장 가까운 아이템 인덱스 계산
+      const newNearestIndex = Math.round(wrapper.scrollLeft / totalWidth);
+
+      // 변경되었을 때만 업데이트
+      if (newNearestIndex !== currentNearestIndexRef.current) {
+        currentNearestIndexRef.current = newNearestIndex;
+        setNearestIndex(newNearestIndex);
+
+        // 현재 아이템 인덱스 업데이트 (표시용)
+        const displayIndex = newNearestIndex % items.length;
+        if (displayIndex !== currentIndex) {
+          onSwipe?.(currentIndex, displayIndex);
+          setCurrentIndex(displayIndex);
+        }
       }
     };
 
     wrapper.addEventListener("scroll", handleScroll);
     return () => wrapper.removeEventListener("scroll", handleScroll);
-  }, [items.length, gap]);
+  }, [currentIndex, gap, items.length, onSwipe, isDragging]);
 
-  const handleTouchStart = useCallback((e: TouchEvent) => {
-    if (!wrapperRef.current) return;
+  const handleTouchStart = useCallback(
+    (e: TouchEvent) => {
+      if (!wrapperRef.current || !swipeable) return;
 
-    setIsDragging(true);
-    setTouchInfo({
-      startX: e.touches[0].clientX - wrapperRef.current.offsetLeft,
-      scrollLeft: wrapperRef.current.scrollLeft,
-    });
-  }, []);
+      // 터치 시작할 때 자동 스크롤 중단
+      if (autoScrollRef.current) {
+        clearInterval(autoScrollRef.current);
+        autoScrollRef.current = null;
+      }
+
+      setIsDragging(true);
+      setTouchInfo({
+        startX: e.touches[0].clientX - wrapperRef.current.offsetLeft,
+        scrollLeft: wrapperRef.current.scrollLeft,
+      });
+    },
+    [swipeable]
+  );
 
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
@@ -122,27 +213,89 @@ export default function Carousel<T>(props: Props<T>) {
     [isDragging, touchInfo]
   );
 
+  // 자동 스크롤 함수
+  const startAutoScroll = useCallback(() => {
+    if (autoScrollRef.current) {
+      clearInterval(autoScrollRef.current);
+    }
+
+    autoScrollRef.current = setInterval(() => {
+      if (
+        isDragging ||
+        !isInitialized ||
+        currentNearestIndexRef.current === null
+      )
+        return;
+
+      // 다음 인덱스로 스크롤
+      const nextIndex = currentNearestIndexRef.current + 1;
+      currentNearestIndexRef.current = nextIndex;
+      setNearestIndex(nextIndex);
+
+      // 부드럽게 스크롤
+      scrollToIndex(nextIndex, true);
+
+      // 다음 표시 인덱스
+      const nextDisplayIndex = nextIndex % items.length;
+      if (nextDisplayIndex !== currentIndex) {
+        onSwipe?.(currentIndex, nextDisplayIndex);
+        setCurrentIndex(nextDisplayIndex);
+      }
+
+      // 스크롤 애니메이션이 끝날 즈음 경계 조건 확인 (약 300ms 후)
+      setTimeout(() => {
+        checkAndAdjustBoundary();
+      }, 300);
+    }, autoScrollInterval);
+
+    return () => {
+      if (autoScrollRef.current) {
+        clearInterval(autoScrollRef.current);
+        autoScrollRef.current = null;
+      }
+    };
+  }, [
+    autoScrollInterval,
+    checkAndAdjustBoundary,
+    currentIndex,
+    isDragging,
+    isInitialized,
+    items.length,
+    onSwipe,
+    scrollToIndex,
+  ]);
+
   const handleTouchEnd = useCallback(() => {
     setIsDragging(false);
     setTouchInfo(null);
 
-    if (!wrapperRef.current) return;
-
-    const scrollLeft = wrapperRef.current.scrollLeft;
-    const itemWidth = itemsRef.current[0]?.offsetWidth || 0;
-    const totalWidth = itemWidth + gap;
+    if (!wrapperRef.current || currentNearestIndexRef.current === null) return;
 
     // 가장 가까운 아이템으로 스냅
-    const nearestIndex = Math.round(scrollLeft / totalWidth);
-    const snapToPosition = nearestIndex * totalWidth;
+    scrollToIndex(currentNearestIndexRef.current, true);
 
-    wrapperRef.current.scrollTo({
-      left: snapToPosition,
-      behavior: "smooth",
-    });
+    // 경계 조건 확인
+    checkAndAdjustBoundary();
 
-    setCurrentIndex(nearestIndex % items.length);
-  }, [gap, items.length]);
+    // 터치 끝났을 때 자동 스크롤 재시작
+    if (autoScroll) {
+      startAutoScroll();
+    }
+  }, [autoScroll, checkAndAdjustBoundary, scrollToIndex, startAutoScroll]);
+
+  // 자동 스크롤 시작
+  useEffect(() => {
+    if (autoScroll && isInitialized && !isDragging && nearestIndex !== null) {
+      startAutoScroll();
+    }
+
+    return () => {
+      if (autoScrollRef.current) {
+        clearInterval(autoScrollRef.current);
+        autoScrollRef.current = null;
+      }
+    };
+  }, [autoScroll, isInitialized, isDragging, nearestIndex, startAutoScroll]);
 
   return (
     <div className="carousel-container">
