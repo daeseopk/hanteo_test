@@ -1,4 +1,5 @@
 import { RouteInfo } from "../components/composite/Header/Header";
+import { BannerItem } from "../types/banner";
 
 export const TABS: Array<RouteInfo> = [
   { label: "차트", path: "/chart" },
@@ -7,4 +8,42 @@ export const TABS: Array<RouteInfo> = [
   { label: "뉴스", path: "/news" },
   { label: "스토어", path: "/store" },
   { label: "충전소", path: "/top-up-center" },
+];
+
+export const BANNERS: Array<BannerItem> = [
+  {
+    imgUrl: "https://picsum.photos/200/300?random=1",
+    isActive: true,
+    title: "[M COUNTDOWN] 10월 2주차 사전투표",
+    startDate: new Date("2020-02-08 10:00:00"),
+    endDate: new Date("2020-04-08 10:00:00"),
+  },
+  {
+    imgUrl: "https://picsum.photos/200/300?random=1",
+    isActive: true,
+    title: "[M COUNTDOWN] 10월 2주차 사전투표",
+    startDate: new Date("2020-02-08 10:00:00"),
+    endDate: new Date("2020-04-08 10:00:00"),
+  },
+  {
+    imgUrl: "https://picsum.photos/200/300?random=1",
+    isActive: false,
+    title: "[M COUNTDOWN] 10월 2주차 사전투표",
+    startDate: new Date("2020-02-08 10:00:00"),
+    endDate: new Date("2020-04-08 10:00:00"),
+  },
+  {
+    imgUrl: "https://picsum.photos/200/300?random=1",
+    isActive: true,
+    title: "[M COUNTDOWN] 10월 2주차 사전투표",
+    startDate: new Date("2020-02-08 10:00:00"),
+    endDate: new Date("2020-04-08 10:00:00"),
+  },
+  {
+    imgUrl: "https://picsum.photos/200/300?random=1",
+    isActive: false,
+    title: "[M COUNTDOWN] 10월 2주차 사전투표",
+    startDate: new Date("2020-02-08 10:00:00"),
+    endDate: new Date("2020-04-08 10:00:00"),
+  },
 ];

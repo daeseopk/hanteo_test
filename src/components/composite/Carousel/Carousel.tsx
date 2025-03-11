@@ -1,4 +1,5 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import "./style.scss";
 
 interface DotsStyle {
   gap?: number;
@@ -31,9 +32,30 @@ export default function Carousel<T>(props: Props<T>) {
     autoScroll = true,
     autoScrollInterval = 3000,
     dotsStyle = DEFAULT_DOTS_STYLE,
-    gap = 50,
+    gap = 30,
     onSwipe,
     showDots = true,
     swipeable = true,
   } = props;
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // 가상의 앞뒤 아이템을 포함한 배열
+  const displayItems = useMemo(
+    () => [items[items.length - 1], ...items, items[0]],
+    [items]
+  );
+
+  return (
+    <div className="carousel-container">
+      <div style={{ gap }} className="carousel-wrapper">
+        {displayItems.map((item, ix) => (
+          <div key={ix} className="carousel-item">
+            <div style={{}} className="carousel-item__wrapper">
+              {renderItem(item)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
