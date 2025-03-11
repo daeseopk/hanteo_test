@@ -8,17 +8,11 @@ import {
   useState,
 } from "react";
 import "./style.scss";
+import Dots, { DotsStyle } from "../../base/Dots/Dots";
 
 interface TouchInfo {
   startX: number;
   scrollLeft: number;
-}
-
-interface DotsStyle {
-  gap?: number;
-  activeColor?: string;
-  inactiveColor?: string;
-  enableAnimation?: boolean;
 }
 
 interface Props<T> {
@@ -215,24 +209,25 @@ export default function Carousel<T>(props: Props<T>) {
 
   // 자동 스크롤 함수
   const startAutoScroll = useCallback(() => {
+    // 이미 실행 중인 타이머가 있으면 제거
+
     if (autoScrollRef.current) {
       clearInterval(autoScrollRef.current);
+      autoScrollRef.current = null;
     }
 
+    // 자동 스크롤이 비활성화되어 있으면 실행하지 않음
+    if (!autoScroll) return;
     autoScrollRef.current = setInterval(() => {
-      if (
-        isDragging ||
-        !isInitialized ||
-        currentNearestIndexRef.current === null
-      )
+      if (!isInitialized || currentNearestIndexRef.current === null) {
         return;
+      }
 
       // 다음 인덱스로 스크롤
       const nextIndex = currentNearestIndexRef.current + 1;
       currentNearestIndexRef.current = nextIndex;
       setNearestIndex(nextIndex);
 
-      // 부드럽게 스크롤
       scrollToIndex(nextIndex, true);
 
       // 다음 표시 인덱스
@@ -255,10 +250,10 @@ export default function Carousel<T>(props: Props<T>) {
       }
     };
   }, [
+    autoScroll,
     autoScrollInterval,
     checkAndAdjustBoundary,
     currentIndex,
-    isDragging,
     isInitialized,
     items.length,
     onSwipe,
@@ -266,22 +261,58 @@ export default function Carousel<T>(props: Props<T>) {
   ]);
 
   const handleTouchEnd = useCallback(() => {
-    setIsDragging(false);
-    setTouchInfo(null);
+    if (!wrapperRef.current || !touchInfo) return;
 
-    if (!wrapperRef.current || currentNearestIndexRef.current === null) return;
+    setIsDragging(false);
+
+    // 현재 스크롤 위치 계산
+    const itemWidth = itemsRef.current[0]?.offsetWidth || 0;
+    if (itemWidth === 0) {
+      setTouchInfo(null);
+      return;
+    }
+
+    const totalWidth = itemWidth + gap;
+    // 정확한 스크롤 위치에서 가장 가까운 인덱스 계산
+    const scrollLeft = wrapperRef.current.scrollLeft;
+    const newNearestIndex = Math.round(scrollLeft / totalWidth);
+
+    // 새 인덱스 설정
+    currentNearestIndexRef.current = newNearestIndex;
+    setNearestIndex(newNearestIndex);
 
     // 가장 가까운 아이템으로 스냅
-    scrollToIndex(currentNearestIndexRef.current, true);
+    scrollToIndex(newNearestIndex, true);
 
-    // 경계 조건 확인
-    checkAndAdjustBoundary();
-
-    // 터치 끝났을 때 자동 스크롤 재시작
-    if (autoScroll) {
-      startAutoScroll();
+    // 새 표시 인덱스 계산
+    const newDisplayIndex = newNearestIndex % items.length;
+    if (newDisplayIndex !== currentIndex) {
+      onSwipe?.(currentIndex, newDisplayIndex);
+      setCurrentIndex(newDisplayIndex);
     }
-  }, [autoScroll, checkAndAdjustBoundary, scrollToIndex, startAutoScroll]);
+
+    setTouchInfo(null);
+
+    // 경계 조건 확인 (스크롤 애니메이션 이후)
+    setTimeout(() => {
+      checkAndAdjustBoundary();
+
+      // 터치 끝났을 때 자동 스크롤 재시작
+      if (autoScroll) {
+        startAutoScroll();
+      }
+    }, 300);
+  }, [
+    autoScroll,
+    checkAndAdjustBoundary,
+    currentIndex,
+    gap,
+    items.length,
+    onSwipe,
+    scrollToIndex,
+    startAutoScroll,
+    touchInfo,
+  ]);
 
   // 자동 스크롤 시작
   useEffect(() => {
@@ -319,6 +350,14 @@ export default function Carousel<T>(props: Props<T>) {
           </div>
         ))}
       </div>
+      {showDots && (
+        <Dots
+          {...dotsStyle}
+          wrapperRef={wrapperRef}
+          totalCount={items.length}
+          currentIndex={currentIndex}
+        />
+      )}
     </div>
   );
 }
