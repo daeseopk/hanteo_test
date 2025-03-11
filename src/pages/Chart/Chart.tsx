@@ -1,3 +1,4 @@
+import BannerCard from "../../components/composite/BannerCard/BannerCard";
 import Carousel from "../../components/composite/Carousel/Carousel";
 import { BANNERS } from "../../dummy/dummy";
 import { BannerItem } from "../../types/banner";
@@ -8,7 +9,7 @@ export default function Chart() {
     <div className="chart-container">
       <Carousel<BannerItem>
         items={BANNERS}
-        renderItem={(item) => <div>d</div>}
+        renderItem={(item) => <BannerCard item={item} />}
       />
     </div>
   );
