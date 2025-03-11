@@ -2,7 +2,7 @@ $active-color: rgba(255, 255, 255, 1);
 $inactive-color: rgba(0, 0, 0, 1);
 
 @mixin header-menu {
-  font-size: 45px;
+  font-size: 15px;
   font-weight: 700;
   white-space: nowrap;
 
@@ -21,10 +21,9 @@ $inactive-color: rgba(0, 0, 0, 1);
   overflow-x: auto;
   cursor: grab;
   user-select: none;
-  padding: 40px 70px;
+  padding: 15px 30px;
   background-color: rgba(255, 182, 193, 1);
-  width: 100vh;
-  gap: 60px;
+  gap: 50px;
 
   li {
     list-style-type: none;
