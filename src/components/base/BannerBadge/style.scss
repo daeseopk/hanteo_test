@@ -1,0 +1,14 @@
+@mixin banner-badge {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  border-radius: 10px;
+}
+.banner-badge {
+  &--active {
+    @include banner-badge;
+  }
+  &--inactive {
+    @include banner-badge;
+  }
+}
