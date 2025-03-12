@@ -13,6 +13,7 @@ interface Props<T> {
   scrollWrapperRef: RefObject<HTMLDivElement | null>;
   gap?: number;
 }
+const SCROLL_DETECT_THRESHOLD = 100;
 
 export default function PagingList<T>(props: Props<T>) {
   const {
@@ -46,10 +47,9 @@ export default function PagingList<T>(props: Props<T>) {
 
   const handleScroll = useCallback(
     (element: HTMLElement) => {
-      const threshold = 100;
       const isAtBottom =
         element.scrollHeight - element.scrollTop <=
-        element.clientHeight + threshold;
+        element.clientHeight + SCROLL_DETECT_THRESHOLD;
 
       if (isAtBottom && hasNext && !isFetching) {
         setParams(
