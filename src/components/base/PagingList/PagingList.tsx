@@ -24,7 +24,7 @@ export default function PagingList<T>(props: Props<T>) {
     gap = 10,
   } = props;
 
-  const { data: response } = query(params);
+  const { data: response, isFetching } = query(params);
 
   const [renderItems, setRenderItems] = useState<Array<T>>([]);
   const [hasNext, setHasNext] = useState<boolean>(true);
@@ -46,10 +46,12 @@ export default function PagingList<T>(props: Props<T>) {
 
   const handleScroll = useCallback(
     (element: HTMLElement) => {
+      const threshold = 100;
       const isAtBottom =
-        element.scrollHeight - element.scrollTop <= element.clientHeight + 1; // +1은 오차 범위
+        element.scrollHeight - element.scrollTop <=
+        element.clientHeight + threshold;
 
-      if (isAtBottom && hasNext) {
+      if (isAtBottom && hasNext && !isFetching) {
         setParams(
           produce(params, (draft) => {
             draft.page += 1;
@@ -57,7 +59,7 @@ export default function PagingList<T>(props: Props<T>) {
         );
       }
     },
-    [hasNext, params, setParams]
+    [hasNext, isFetching, params, setParams]
   );
 
   useEffect(() => {
