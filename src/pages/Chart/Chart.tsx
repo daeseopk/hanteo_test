@@ -29,7 +29,11 @@ export default function Chart() {
   };
 
   useEffect(() => {
-    if (swipeCondition === "completed" || !chartContainerRef.current) {
+    if (!chartContainerRef.current) {
+      return;
+    }
+    if (swipeCondition === "completed") {
+      chartContainerRef.current.style.overflow = "auto";
       return;
     }
     chartContainerRef.current.style.overflow = "hidden";
