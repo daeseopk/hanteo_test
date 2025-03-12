@@ -28,8 +28,6 @@ interface Props<T> {
 }
 
 const DEFAULT_DOTS_STYLE: DotsStyle = {
-  activeColor: "rgba(69, 69, 69, 1)",
-  inactiveColor: "rgba(69, 69, 69, 0.3)",
   gap: 10,
 };
 
@@ -71,6 +69,7 @@ export default function Carousel<T>(props: Props<T>) {
       if (itemWidth === 0) return;
 
       const totalWidth = itemWidth + gap;
+
       const scrollPosition = index * totalWidth;
 
       wrapperRef.current.scrollTo({
@@ -353,9 +352,9 @@ export default function Carousel<T>(props: Props<T>) {
       {showDots && (
         <Dots
           {...dotsStyle}
+          currentIndex={currentIndex}
           wrapperRef={wrapperRef}
           totalCount={items.length}
-          currentIndex={currentIndex}
         />
       )}
     </div>
