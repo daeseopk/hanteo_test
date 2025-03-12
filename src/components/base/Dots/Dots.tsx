@@ -44,9 +44,7 @@ export default function Dots(props: Props) {
         const maxScrollLeft = minScrollLeft * 2 - gap;
 
         const percentage =
-          ((currentScrollLeft - minScrollLeft) /
-            (maxScrollLeft - minScrollLeft)) *
-          100;
+          (currentScrollLeft - minScrollLeft) / (maxScrollLeft - minScrollLeft);
 
         const progress = percentage * (totalCount - 1);
         setScrollProgress(progress);
@@ -77,20 +75,20 @@ export default function Dots(props: Props) {
   // index 별 opacity 계산 함수
   const getOpacity = (ix: number, scrollProgress: number) => {
     const calcOpacity = (distance: number) =>
-      Math.max(inactiveOpacity, Math.min(MAX_OPACITY, 1 - distance / 100));
+      Math.max(inactiveOpacity, Math.min(MAX_OPACITY, 1 - distance));
 
-    const midPoint = ix * 100;
-    const observeRange = [ix * 100 - 100, ix * 100 + 100];
+    const midPoint = ix;
+    const observeRange = [ix - 1, ix + 1];
 
     // 엣지 케이스 처리 함수
     const handleEdgeCases = () => {
       // 첫 번째 인덱스 엣지 케이스
       if (
         ix === 0 &&
-        scrollProgress >= (totalCount - 1) * 100 &&
-        scrollProgress <= totalCount * 100
+        scrollProgress >= totalCount - 1 &&
+        scrollProgress <= totalCount
       ) {
-        const distance = Math.abs(scrollProgress - totalCount * 100);
+        const distance = Math.abs(scrollProgress - totalCount);
         return calcOpacity(distance);
       }
 
@@ -98,9 +96,9 @@ export default function Dots(props: Props) {
       if (
         ix === totalCount - 1 &&
         scrollProgress <= 0 &&
-        scrollProgress >= -100
+        scrollProgress >= -1
       ) {
-        const distance = Math.abs(scrollProgress + 100);
+        const distance = Math.abs(scrollProgress + 1);
         return calcOpacity(distance);
       }
 
