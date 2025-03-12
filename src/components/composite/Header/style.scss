@@ -12,6 +12,8 @@ $inactive-color: rgba(0, 0, 0, 1);
   }
 }
 .header-container {
+  position: sticky;
+  top: 0px;
   &::-webkit-scrollbar {
     display: none;
   }
