@@ -194,7 +194,7 @@ export default function Carousel<T>(props: Props<T>) {
         scrollLeft: wrapperRef.current.scrollLeft,
       });
     },
-    [swipeable]
+    [swipeable, onSwipeStateChange]
   );
 
   const handleTouchMove = useCallback(
@@ -311,6 +311,7 @@ export default function Carousel<T>(props: Props<T>) {
     gap,
     items.length,
     onSwipe,
+    onSwipeStateChange,
     scrollToIndex,
     startAutoScroll,
     touchInfo,
