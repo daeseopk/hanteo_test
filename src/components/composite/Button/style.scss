@@ -1,0 +1,14 @@
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px 8px;
+
+  border: 1px solid hotpink;
+  color: hotpink;
+  font-size: 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: inherit;
+}

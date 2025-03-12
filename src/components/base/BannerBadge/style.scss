@@ -2,7 +2,12 @@
   position: absolute;
   left: 10px;
   top: 10px;
-  border-radius: 10px;
+  border-radius: 5px;
+  padding: 3px 5px;
+  font-weight: 500;
+  background-color: hotpink;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 1);
 }
 .banner-badge {
   &--active {

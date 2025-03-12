@@ -16,7 +16,7 @@ export default function BannerCard(props: Props) {
     return `${window.innerWidth - 40}px`;
   };
   return (
-    <Card className="banner-card" hasShadow width={getWidth()} height="180px">
+    <Card className="banner-card" hasShadow width={getWidth()} height="200px">
       <BannerBadge isActive={item.isActive} />
       <BannerImage imgUrl={item.imgUrl} />
       <BannerInfo {...item} />
