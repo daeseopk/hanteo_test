@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PagingList from "../../components/base/PagingList/PagingList";
 import BannerCard from "../../components/composite/BannerCard/BannerCard";
 import Carousel, {
@@ -19,10 +19,11 @@ const DEFAULT_PARAMS: Params = {
 };
 
 export default function Chart() {
-  const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const [params, setParams] = useState<Params>(DEFAULT_PARAMS);
   const [swipeCondition, setSwipeCondition] =
     useState<SwipeCondition>("completed");
+
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
 
   const handleChangeSwipeCondition = (condition: SwipeCondition) => {
     setSwipeCondition(condition);
@@ -38,6 +39,11 @@ export default function Chart() {
     }
     chartContainerRef.current.style.overflow = "hidden";
   }, [swipeCondition]);
+
+  const itemRenderer = useCallback((item: Post) => {
+    return <PostCard {...item} />;
+  }, []);
+
   return (
     <div ref={chartContainerRef} className="chart-container">
       <Carousel<BannerItem>
@@ -53,7 +59,7 @@ export default function Chart() {
             setParams={setParams}
             gap={15}
             scrollWrapperRef={chartContainerRef}
-            renderItem={(item) => <PostCard {...item} />}
+            renderItem={itemRenderer}
           />
         </ListView>
       </div>

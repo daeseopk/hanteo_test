@@ -15,6 +15,7 @@ export default function BannerCard(props: Props) {
   const getWidth = () => {
     return `${window.innerWidth - 40}px`;
   };
+
   return (
     <Card className="banner-card" hasShadow width={getWidth()} height="200px">
       <BannerBadge isActive={item.isActive} />

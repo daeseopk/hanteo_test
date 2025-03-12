@@ -12,12 +12,14 @@ interface Props {
 }
 export default function Header(props: Props) {
   const { tabs } = props;
-  const { pathname } = useLocation();
 
-  const headerRef = useRef<HTMLUListElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+
+  const { pathname } = useLocation();
+
+  const headerRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     if (headerRef.current) {

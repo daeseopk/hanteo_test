@@ -55,7 +55,6 @@ export default function Carousel<T>(props: Props<T>) {
   const itemsRef = useRef<Array<HTMLDivElement | null>>([]);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const autoScrollRef = useRef<NodeJS.Timeout | null>(null);
-
   const currentNearestIndexRef = useRef<number | null>(null);
   const singleSetWidthRef = useRef<number>(0);
 
