@@ -14,7 +14,7 @@ const routes: Array<RouteConfig> = [
       },
       {
         path: "/w-hook",
-        element: <div>WHook</div>,
+        element: <div>Whook</div>,
       },
       {
         path: "/event",

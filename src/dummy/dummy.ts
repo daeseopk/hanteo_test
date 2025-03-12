@@ -4,7 +4,7 @@ import { Post } from "../types/post";
 
 export const TABS: Array<RouteInfo> = [
   { label: "차트", path: "/chart" },
-  { label: "WHook", path: "/w-hook" },
+  { label: "Whook", path: "/w-hook" },
   { label: "이벤트", path: "/event" },
   { label: "뉴스", path: "/news" },
   { label: "스토어", path: "/store" },
