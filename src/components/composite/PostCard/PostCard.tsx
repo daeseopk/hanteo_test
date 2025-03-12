@@ -1,11 +1,13 @@
 import { Post } from "../../../types/post";
 import Card from "../../base/Card/Card";
+import "./style.scss";
 
 export default function PostCard(props: Post) {
-  const { title } = props;
+  const { title, imgUrl } = props;
   return (
-    <Card width="100%" height="40px">
-      {title}
+    <Card className="post-card" width="100%" height="60px">
+      <img className="post-card-img" src={imgUrl} />
+      <span>{title}</span>
     </Card>
   );
 }

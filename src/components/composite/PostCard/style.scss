@@ -1,2 +1,9 @@
 .post-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.post-card-img {
+  width: 60px;
+  height: 60px;
 }
