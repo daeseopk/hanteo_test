@@ -1,4 +1,3 @@
-import { MouseEvent } from "react";
 import { BannerItem } from "../../../types/banner";
 import Button from "../../composite/Button/Button";
 import "./style.scss";
@@ -9,7 +8,7 @@ export default function BannerInfo(
 ) {
   const { endDate, startDate, title } = props;
 
-  const handleClickVote = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleClickVote = () => {
     console.log("mouse event");
   };
 
