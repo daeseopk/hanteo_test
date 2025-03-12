@@ -1,19 +1,42 @@
+import { useRef, useState } from "react";
+import PagingList from "../../components/base/PagingList/PagingList";
 import BannerCard from "../../components/composite/BannerCard/BannerCard";
 import Carousel from "../../components/composite/Carousel/Carousel";
 import ListView from "../../components/composite/ListView/ListView";
 import { BANNERS } from "../../dummy/dummy";
+import useGetPostList from "../../queries/useGetPostList";
 import { BannerItem } from "../../types/banner";
+import { Params } from "../../types/params";
 import "./style.scss";
+import { Post } from "../../types/post";
+import PostCard from "../../components/composite/PostCard/PostCard";
+
+const DEFAULT_PARAMS: Params = {
+  limit: 20,
+  page: 1,
+};
 
 export default function Chart() {
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
+  const [params, setParams] = useState<Params>(DEFAULT_PARAMS);
+
   return (
-    <div className="chart-container">
+    <div ref={chartContainerRef} className="chart-container">
       <Carousel<BannerItem>
         items={BANNERS}
         renderItem={(item) => <BannerCard item={item} />}
       />
       <div className="list-view-wrapper">
-        <ListView title="콘텐츠 큐레이션 제목">ㅁㄴㅇㄹ</ListView>
+        <ListView title="콘텐츠 큐레이션 제목">
+          <PagingList<Post>
+            query={useGetPostList}
+            params={params}
+            setParams={setParams}
+            gap={15}
+            scrollWrapperRef={chartContainerRef}
+            renderItem={(item) => <PostCard {...item} />}
+          />
+        </ListView>
       </div>
     </div>
   );
