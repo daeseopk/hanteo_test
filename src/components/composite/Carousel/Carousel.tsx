@@ -14,7 +14,7 @@ interface TouchInfo {
   startX: number;
   scrollLeft: number;
 }
-
+export type SwipeCondition = "swiping" | "completed";
 interface Props<T> {
   items: Array<T>;
   renderItem: (item: T) => ReactNode;
@@ -25,6 +25,7 @@ interface Props<T> {
   swipeable?: boolean;
   onSwipe?: (beforeIndex: number, currentIndex: number) => void;
   dotsStyle?: DotsStyle;
+  onSwipeStateChange?: (state: SwipeCondition) => void;
 }
 
 const DEFAULT_DOTS_STYLE: DotsStyle = {
@@ -42,6 +43,7 @@ export default function Carousel<T>(props: Props<T>) {
     onSwipe,
     showDots = true,
     swipeable = true,
+    onSwipeStateChange,
   } = props;
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -177,6 +179,7 @@ export default function Carousel<T>(props: Props<T>) {
 
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
+      onSwipeStateChange?.("swiping");
       if (!wrapperRef.current || !swipeable) return;
 
       // 터치 시작할 때 자동 스크롤 중단
@@ -261,7 +264,7 @@ export default function Carousel<T>(props: Props<T>) {
 
   const handleTouchEnd = useCallback(() => {
     if (!wrapperRef.current || !touchInfo) return;
-
+    onSwipeStateChange?.("completed");
     setIsDragging(false);
 
     // 현재 스크롤 위치 계산

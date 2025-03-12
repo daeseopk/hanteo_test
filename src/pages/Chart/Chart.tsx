@@ -1,7 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PagingList from "../../components/base/PagingList/PagingList";
 import BannerCard from "../../components/composite/BannerCard/BannerCard";
-import Carousel from "../../components/composite/Carousel/Carousel";
+import Carousel, {
+  SwipeCondition,
+} from "../../components/composite/Carousel/Carousel";
 import ListView from "../../components/composite/ListView/ListView";
 import { BANNERS } from "../../dummy/dummy";
 import useGetPostList from "../../queries/useGetPostList";
@@ -19,12 +21,25 @@ const DEFAULT_PARAMS: Params = {
 export default function Chart() {
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const [params, setParams] = useState<Params>(DEFAULT_PARAMS);
+  const [swipeCondition, setSwipeCondition] =
+    useState<SwipeCondition>("completed");
 
+  const handleChangeSwipeCondition = (condition: SwipeCondition) => {
+    setSwipeCondition(condition);
+  };
+
+  useEffect(() => {
+    if (swipeCondition === "completed" || !chartContainerRef.current) {
+      return;
+    }
+    chartContainerRef.current.style.overflow = "hidden";
+  }, [swipeCondition]);
   return (
     <div ref={chartContainerRef} className="chart-container">
       <Carousel<BannerItem>
         items={BANNERS}
         renderItem={(item) => <BannerCard item={item} />}
+        onSwipeStateChange={handleChangeSwipeCondition}
       />
       <div className="list-view-wrapper">
         <ListView title="콘텐츠 큐레이션 제목">
